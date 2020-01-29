@@ -108,3 +108,78 @@ from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = format_suffix_patterns(urlpatterns)
 </code>
 </pre>
+
+## Clase-based Views
+
+<pre>
+<code>
+from rest_framework.decorators import APIView
+
+class SnippetList(APIView):
+</code>
+</pre>
+
+## Generic Views
+
+REST framework takes advantage by providing a number of pre-built views that provide for commonly used patterns.
+The generic views provided by REST framework allow you to quickly build API views that map closely to your database models.
+
+If the generic views don't suit the needs of your API, you can drop down to using the regular _APIView_ class,
+or reuse the mixins and base classes used by the generic views to compose your own set of reusable generic views.
+
+### GenericAPIView
+
+This class extends REST framework's _APIView_ class, adding commonly required behavior for standard list and detail views.
+Each of the concrete generic views provided is built by combining _GenericAPIView_, with one or more mixin classes.
+
+#### Attributes
+
+**- queryset**
+
+The queryset that should be used for returning objects from this view.
+
+**- serializer_class**
+
+The serializer class that should be used for validating and deserializing input, and for serializing output.
+
+**- lookup_field**
+
+The model field that should be used to for performing object lookup of individual model instances.
+Defaults to _'pk'_.
+
+## Mixins
+
+One of the big wins of using class-based views is that it allows us to easily compose reusable bits of behaviour.
+
+The create/retreive/update/delete operations that we've been using so far are going to be pretty similar for any
+model-backed API views we create.
+Those bits of common behaviour are implemented in REST framework's mixin classes.
+
+### ListModelMixin
+
+Provides a _list(request, \*args, \*\*kwargs)_ method, that implements listing a queryset.
+If the queryset is populated, this returns a _200 OK_ response, with a serialized representation of the queryset as the body of the response.
+
+### CreateModelMixin
+
+Provides a _create(request, \*args, \*\*kwargs)_ method, that implements creating and saving a new model instance.
+If an object is created this returns a _201 Created_ response, with a serialized representation of the object as the body of the response.
+If the request data provided for creating the object was invalid, a _400 Bad Request_ response will be returned, with the error details as the body of the response.
+
+### RetrieveModelMixin
+
+Provides a _retrieve(request, \*args, \*\*kwargs)_ method, that implements returning an existing model instance in a response.
+If an object can be retrieved this returns a _200 OK_ response, with a serialized representation of the object as the body of the response.
+Otherwise it will return a _404 Not Found_.
+
+### UpdateModelMixin
+
+Provides a _update(request, \*args, \*\*kwargs)_ method, that implements updating and saving an existing model instance.
+If an object is updated this returns a _200 OK_ response, with a serialized representation of the object as the body of the response.
+If the request data provided for updating the object was invalid, a _400 Bad Request_ response will be returned,
+with the error details as the body of the response.
+
+### DestroyModelMixin
+
+Provides a _destroy(request, \*args, \*\*kwargs)_ method, that implements deletion of an existing model instance.
+If an object is deleted this returns a _204 No Content_ response, otherwise it will return a _404 Not Found_.
