@@ -49,6 +49,19 @@ They don't do anything particularly magical, they are simply a shortcut for crea
 - An automatically determined set of fields
 - Simple default implementations for the _create()_ and _update()_ methods
 
+## Serializer fields
+
+### Core arguments
+
+**- source**
+
+The name of the attribute that will be used to populate the field.
+
+### ReadOnlyField
+
+A field class that simply returns the value of the field without modification.
+This field is used by default with ModelSerializer when including field names that relate to an attribute rather than a model field.
+
 ## Request objects
 
 _Request_ object extends the regular _HttpRequest_, and provides more flexible request parsing.
@@ -147,6 +160,34 @@ The serializer class that should be used for validating and deserializing input,
 The model field that should be used to for performing object lookup of individual model instances.
 Defaults to _'pk'_.
 
+#### Method
+
+##### Save and deletion hooks
+
+The following methods are provided by the mixin classes, and provide easy overriding of the object save or deletion behavior.
+
+**- perform_create(self, serializer)**
+
+Called by CreateModelMixin when saving a new object instance.
+
+**- perform_update(self, serializer)**
+
+Called by UpdateModelMixin when saving an existing object instance.
+
+**- perform_destroy(self, serializer)**
+
+Called by DestroyModelMixin when deleting an object instance.
+
+These hooks are particularly useful for setting attributes that are implicit in the request, but are not part of the request data.
+For instance, you might set an attribute on the object based on the request user, or based on a URL keyword argument.
+
+<pre>
+<code>
+def perform_create(self, serializer):
+    serializer.save(user=self.request.user)
+</code>
+</pre>
+
 ## Mixins
 
 One of the big wins of using class-based views is that it allows us to easily compose reusable bits of behaviour.
@@ -232,3 +273,69 @@ Provides _get_ and _delete_ method handlers.
 
 Used for read-write-delete endpoints to represent a single model instance.
 Provides _get_, _put_, _patch_ and _delete_ method handlers.
+
+## Permissions
+
+### Setting the permission policy
+
+The default permission policy may be set globally, using the _DEFAULT_PERMISSION_CLASSES_ setting.
+
+<pre>
+<code>
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+</code>
+</pre>
+
+You can also set the authentication policy on a per-view, or per-viewset basis, using the APIView class-based views.
+
+<pre>
+<code>
+from rest_framework.permissions import IsAuthenticated
+
+class ExampleView(APIView):
+    permission_classes = [IsAuthenticated]
+</code>
+</pre>
+
+Or, if you're using the @api_view decorator with function based views.
+
+<pre>
+<code>
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def example_view(request, format=None):
+    //
+</code>
+</pre>
+
+### API Reference
+
+**- AllowAny**
+
+The _AllowAny_ permission class will allow unrestricted access,
+regardless of if the request was authenticated or unauthenticated.
+
+**- IsAuthenticated**
+
+The _IsAuthenticated_ permission class will deny permission to any unauthenticated user,
+and allow permission otherwise.
+
+**- IsAdminUser**
+
+The _IsAdminUser_ permission class will deny permission to any user,
+unless _user.is_staff_ is _True_ in which case permission will be allowed.'
+
+**- IsAuthenticatedOrReadOnly**
+
+The _IsAuthenticatedOrReadOnly_ will allow authenticated users to perform any request.
+Requests for unauthorised users will only be permitted if the request method is one of the "safe" methods; _GET_, _HEAD_ or _OPTIONS_.
+
+This permission is suitable if you want your API to allow read permissions to anonymous users,
+and only allow write permissions to authenticated users.
