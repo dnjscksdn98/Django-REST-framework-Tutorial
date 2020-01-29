@@ -183,3 +183,52 @@ with the error details as the body of the response.
 
 Provides a _destroy(request, \*args, \*\*kwargs)_ method, that implements deletion of an existing model instance.
 If an object is deleted this returns a _204 No Content_ response, otherwise it will return a _404 Not Found_.
+
+## Concrete View Classes
+
+REST framework provides a set of already mixed-in generic views that we can use to trim down our _views.py_ module even more.
+
+### CreateAPIView
+
+Used for create-only endpoints.
+Provides a _post_ method handler.
+
+### ListAPIView
+
+Used for read-only endpoints to represent a collection of model instances.
+Provides a _get_ method handler.
+
+### RetrieveAPIView
+
+Used for read-only endpoints to represent a single model instance.
+Provides a _get_ method handler.
+
+### DestroyAPIView
+
+Used for update-only endpoints for a single model instance.
+Provides _put_ and _patch_ method handlers.
+
+### UpdateAPIView
+
+Used for update-only endpoints for a single model instance.
+Provides _put_ and _patch_ method handlers.
+
+### ListCreateAPIView
+
+Used for read-write endpoints to represent a collection of model instances.
+Provides _get_ and _post_ method handlers.
+
+### RetrieveUpdateAPIView
+
+Used for read or update endpoints to represent a single model instance.
+Provides _get_, _put_ and _patch_ method handlers.
+
+### RetrieveDestroyAPIView
+
+Used for read or delete endpoints to represent a single model instance.
+Provides _get_ and _delete_ method handlers.
+
+### RetrieveUpdateDestroyAPIView
+
+Used for read-write-delete endpoints to represent a single model instance.
+Provides _get_, _put_, _patch_ and _delete_ method handlers.
