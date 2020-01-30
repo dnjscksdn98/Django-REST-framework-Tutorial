@@ -33,7 +33,8 @@ python manage.py migrate
 
 ## Creating a Serializer class
 
-Link : [Serializer][https://www.django-rest-framework.org/api-guide/serializers/#serializers]
+Link : [Serializer][documents]
+[documents]: https://www.django-rest-framework.org/api-guide/serializers/#serializers
 
 The first thing we need to get started on our Web API is to provide a way of serializing and deserializing the snippet instances
 into representations such as _json_. We can do this by declaring serializers that work very similar to Django's forms.
