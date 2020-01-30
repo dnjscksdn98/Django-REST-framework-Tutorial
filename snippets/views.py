@@ -1,8 +1,8 @@
-from rest_framework import generics, permissions, renderers
-from django.contrib.auth.models import User
-from rest_framework.decorators import api_view
+from rest_framework import generics, permissions, renderers, viewsets
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from django.contrib.auth.models import User
 from .models import Snippet
 from .serializers import SnippetSerializer, UserSerializer
 from .permissions import IsOwnerOrReadOnly
@@ -16,48 +16,33 @@ def api_root(request, format=None):
     })
 
 
-class SnippetHighlight(generics.GenericAPIView):
-    # creating an endpoint for the highlighted snippets
-    # we don't want to use JSON, but instead just present an HTML representation
-    # there's no existing concrete generic view that we can use.
-    # we're not returning an object instance, but instead a property of an object instance
-    # so we'll use the base class for representing instances, and create our own get() method.
-    queryset = Snippet.objects.all()
-    renderer_classes = [renderers.StaticHTMLRenderer]
+class SnippetViewSet(viewsets.ModelViewSet):
+    """
+    This viewset automatically provides 'list', 'create', 'retrieve', 'update' and 'destroy' actions.
+    """
 
-    def get(self, request, *args, **kwargs):
-        snippet = self.get_object()
-        return Response(snippet.highlighted)
-
-
-class SnippetList(generics.ListCreateAPIView):
-    # list all code snippets, or create a new snippet
-    queryset = Snippet.objects.all()
-    serializer_class = SnippetSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    # associate snippets with users
-    # the create() method of our serializer will now be passed an addtional 'owner' field,
-    # along with the validated data from the request
-    # request.user : Django User instance
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-
-class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
-    # Retrieve, update, or delete a code snippet
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly
+    ]
+
+    # used to add any custom endpoints that don't fit into the standard create/update/delete style
+    # respond 'GET' requests by default
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
+
+    def perform_create(self, serializer):
+        return serializer.save(owner=self.request.user)
 
 
-# create read-only views for the user representations
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides 'list' and 'detail' actions.
+    """
 
-
-class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
