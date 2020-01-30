@@ -33,6 +33,8 @@ python manage.py migrate
 
 ## Creating a Serializer class
 
+Link : [Serializer][https://www.django-rest-framework.org/api-guide/serializers/#serializers]
+
 The first thing we need to get started on our Web API is to provide a way of serializing and deserializing the snippet instances
 into representations such as _json_. We can do this by declaring serializers that work very similar to Django's forms.
 
@@ -339,3 +341,21 @@ Requests for unauthorised users will only be permitted if the request method is 
 
 This permission is suitable if you want your API to allow read permissions to anonymous users,
 and only allow write permissions to authenticated users.
+
+## Authentications
+
+Authentication always run at the very start of the view,
+before the permission and throttling checks occur,
+and before any other code is allowed to proceed.
+
+## Returning URLs
+
+As a rule, it's probably better practice to return absolute URIs from your Web APIs,
+such as _http://example.com/foobar_, rather than returning relative URIs, such as _/foobar_.
+
+**- reverse**
+
+Signature: _reverse(viewname, \*args, \*\*kwargs)_
+
+Has the same behavior as django.urls.reverse, except that it returns a fully qualified URL,
+using the request to determine the host and port.
