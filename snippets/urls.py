@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
 
+# if we're going to have a hyperlinked API, we need to make sure we name our URL patterns.
 urlpatterns = format_suffix_patterns([
     path('', views.api_root),
     path('snippets/', views.SnippetList.as_view(), name='snippet-list'),
